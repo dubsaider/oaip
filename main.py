@@ -1,14 +1,18 @@
 import requests
 import os
 import time
+import sys
+import traceback
 
 from typing import Optional, Dict, List, BinaryIO
 
 from dotenv import load_dotenv 
 
-from handlers.hello_handler import Handler
+from handlers.message_handler import MessageHandler
 from handlers.button_handler import ButtonHandler
-from handlers.picture_handler import PictureHandler
+from handlers.file_handler import FileHandler
+
+from utils.parser import Parser
 
 
 class TelegramBot:
@@ -16,7 +20,7 @@ class TelegramBot:
         self.token = token
         self.base_url = f"https://api.telegram.org/bot{token}"
         self.offset = 0
-        self.handlers = [Handler(), ButtonHandler(), PictureHandler()]
+        self.handlers = [MessageHandler(parser=Parser, type_parser='TEXT'), ButtonHandler(parser=Parser, type_parser='BUTTON'), FileHandler(parser=Parser, type_parser='FILE')]
 
     def _request(self, method: str, params: Optional[Dict] = None) -> Dict:
         """Базовый метод для запросов к API"""
@@ -38,7 +42,7 @@ class TelegramBot:
             try:
                 handler(message, self)
             except Exception as e:
-                print(f"Ошибка в обработчике: {e}")
+                traceback.print_exc()
         
     def get_me(self) -> Dict:
         """Получить информацию о боте"""

@@ -1,13 +1,11 @@
-class ButtonHandler:
-    def __init__(self):
-        pass
+from .abstract_handler import AbstractHandler 
 
+class ButtonHandler(AbstractHandler):
     def __call__(self, *args, **kwds):
         message, bot = args[0], args[1]
-        chat_id = message['message']['chat']['id']
-        message = message['data']
+        message, chat_id = self.parser(message)
 
-        if message in ('red', 'blue'):
+        if message is not None and message in ('red', 'blue'):
             if message == 'red':
                 bot.send_message(chat_id, 'Выбрана красная')
             elif message == 'blue':
